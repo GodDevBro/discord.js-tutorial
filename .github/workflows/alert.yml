@@ -2,14 +2,18 @@ name: "⛧ MOONRIG // CORE EXECUTION NODE"
 
 on:
   workflow_dispatch:
-
   schedule:
-    - cron: "30 * * * *"
+    - cron: "0 0 * * *"
+    - cron: "0 4 * * *"
+    - cron: "0 8 * * *"
+    - cron: "0 12 * * *"
+    - cron: "0 16 * * *"
+    - cron: "0 20 * * *"
 
 jobs:
   ghost_node:
     runs-on: ubuntu-latest
-    timeout-minutes: 55
+    timeout-minutes: 235
 
     steps:
       - name: "⚙️ bootstrap // system sync"
